@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from scipy.sparse.linalg import svds
+from evaluation import compute_rmse, compute_mae, precision_at_k
 
 # Data loading
 books_df = pd.read_csv("Data/Books.csv", low_memory=False)
@@ -32,6 +33,16 @@ users_books_pivot_matrix = users_books_pivot_matrix_df.values
 NUMBER_OF_FACTORS_MF = 15
 U, sigma, Vt = svds(users_books_pivot_matrix, k=NUMBER_OF_FACTORS_MF)
 sigma = np.diag(sigma)
+all_user_predicted_ratings = np.dot(np.dot(U, sigma), Vt)
+
+# evaluation metrics rmse,K,mae
+rmse = compute_rmse(all_user_predicted_ratings, users_books_pivot_matrix)
+mae = compute_mae(all_user_predicted_ratings, users_books_pivot_matrix)
+precision_k = precision_at_k(all_user_predicted_ratings, users_books_pivot_matrix, k=5)
+
+print(f"RMSE: {rmse}")
+print(f"MAE: {mae}")
+print(f"Precision at K (K=5): {precision_k}")
 
 # Predict ratings
 all_user_predicted_ratings = np.dot(np.dot(U, sigma), Vt)
